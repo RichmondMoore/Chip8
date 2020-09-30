@@ -1,5 +1,5 @@
-#ifndef STACK.H
-#define STACK.H
+#ifndef STACK_H
+#define STACK_H
 
 typedef struct {
     int capacity;
