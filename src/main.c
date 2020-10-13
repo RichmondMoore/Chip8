@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../include/Stack.h"
+#include "../include/Opcodes.h"
 
 typedef unsigned char BYTE;
 
@@ -8,8 +9,8 @@ void load_rom(char*, BYTE*);
 typedef struct {
 	BYTE mem[0xFFF];
 	BYTE V[0xF];
-	unsigned int I;
-	unsigned int PC;
+	unsigned int I = 0;
+	unsigned int PC = 0;
 	Stack stack;
 } Chip8;
 
@@ -39,3 +40,11 @@ void load_rom(char* path_to_file, BYTE* mem) {
 	// Reads the file into memory starting at address 0x200
 	fread(&mem[0x200], 1, file_size, fp);
 }
+
+BYTE read_opcode(Chip8 chip8) {
+	unsigned int opcode = (chip8.mem[chip8.PC] << 8) | (chip8.mem[chip8.PC + 1]);
+	execute_opcode(opcode, chip8);
+	chip8.PC += 2;
+}
+
+//TODO Clean up to look more like this: initialize the Chip8, emulate a cycle (fetch, decode, execute), update timers, check if it needs to draw, check inputs
