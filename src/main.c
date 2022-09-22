@@ -4,8 +4,10 @@
 int main() {
 	load_rom("../ROMS/BRIX");
 
-	for (int i = 0; i < 4096; i++) {
-		printf("%d\n", mem[i]);
-	}
+	init_chip8();
+	for (int i = 0; i < 500; i++)
+		cycle();
+
+	printf("Misses: %d", misses);
 	return 0;
 }
