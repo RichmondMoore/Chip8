@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -18,7 +19,7 @@ BYTE mem[MEM_SIZE];
 
 // 16 general purpose registers V0-VF
 // VF is used as a flag for certain instructions
-BYTE V[15];
+BYTE V[16];
 BYTE DT, ST; // Delay and sound timers
 BYTE SP; // Stack pointer
 
@@ -28,6 +29,11 @@ uint16_t stack[16];
 
 BYTE display[32][64];
 
+int misses;
+
 // FUNCTIONS
 
 void load_rom(char * path);
+void init_chip8();
+void cycle();
+BYTE rand_byte();
