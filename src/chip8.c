@@ -1,5 +1,20 @@
 #include "chip8.h"
 
+// Globals
+
+BYTE mem[MEM_SIZE];
+
+BYTE V[16];
+BYTE DT, ST; // Delay and sound timers
+BYTE SP; // Stack pointer
+
+uint16_t I; // Stores memory addresses
+uint16_t PC; // Program counter
+uint16_t stack[16];
+
+BYTE display[32][64];
+
+int misses;
 
 void load_rom(char * path) {
     FILE* fp;
@@ -35,7 +50,7 @@ void cycle() {
 	uint16_t op = mem[PC] << 8 | mem[PC+1];
 	uint16_t nnn = op & 0x0FFF;
 	BYTE n = op & 0x000F;
-	BYTE x = op & 0x0F00;
+	BYTE x = (BYTE)(op & 0x0F00);
 	BYTE y = op & 0x00F0;
 	BYTE kk = op & 0x00FF;
 
@@ -140,6 +155,7 @@ void cycle() {
 					printf("ERROR: Unknown opcode %d\n", op);
 					break;
 			}
+			break;
 		case 0x9000:
 			printf("SNE V%d, V%d\n", x, y);
 			PC += (V[x] != V[y]) ? 4 : 2;
@@ -174,4 +190,8 @@ void cycle() {
 
 BYTE rand_byte() {
 	return rand() % 255;
+}
+
+void print_misses() {
+	printf("Misses: %d", misses);
 }

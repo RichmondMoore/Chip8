@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "chip8.h"
 
 int main() {
@@ -8,6 +7,6 @@ int main() {
 	for (int i = 0; i < 500; i++)
 		cycle();
 
-	printf("Misses: %d", misses);
+	print_misses();
 	return 0;
 }
