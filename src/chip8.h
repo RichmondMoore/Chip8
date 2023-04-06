@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 // DEFINES
 
@@ -38,7 +39,9 @@ extern int misses;
 
 void load_rom(char * path);
 void init_chip8();
+void init_display();
 void cycle();
+void draw_sprite();
 BYTE rand_byte();
 
 void print_misses();

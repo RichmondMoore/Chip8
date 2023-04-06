@@ -16,6 +16,25 @@ BYTE display[32][64];
 
 int misses;
 
+unsigned char fontset[80] = {
+    0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
+    0x20, 0x60, 0x20, 0x20, 0x70,  // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0,  // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0,  // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10,  // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0,  // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0,  // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40,  // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0,  // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0,  // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90,  // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0,  // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0,  // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0,  // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0,  // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80   // F
+};
+
 void load_rom(char * path) {
     FILE* fp;
     fp = fopen(path, "rb");
@@ -45,6 +64,10 @@ void init_chip8() {
 	}
 }
 
+void init_display() {
+	memset(display, 0, sizeof(display));
+}
+
 void cycle() {
 	// Fetch
 	uint16_t op = mem[PC] << 8 | mem[PC+1];
@@ -59,6 +82,7 @@ void cycle() {
 			switch (kk) {
 				case 0x00E0:
 					printf("CLS\n");
+					memset(display, 0, sizeof(display));
 					PC += 2;
 					break;
 				case 0x00EE:
@@ -179,13 +203,43 @@ void cycle() {
 			// Read n bytes starting at I, display at (Vx, Vy), VF = collision
 			// Wrap around screen
 			// Sprites are XORed onto the screen
+			draw_sprite();
 			PC += 2;
 			break;
+		case 0xE000:
+			switch (op & 0x00FF) {
+				case 0x9E:
+					printf("SKP Vx\n");
+					PC += (Vx_pressed()) ? 4 : 2;
+					break;
+				case 0xA1:
+					printf("SKNP Vx\n");
+					PC += (Vx_pressed()) ? 2 : 4;
+					break;
+				default:
+					printf("Unrecognized opcode.");
+					misses++;
+					break;
+			}
+			break;
+		case 0xF000:
+			switch (op & 0x00FF) {
+
+			}
 		default:
 			printf("Not implemented yet.\n");
 			misses++;
 			break;
 	}
+}
+
+void draw_sprite() {
+	// TODO
+}
+
+bool Vx_pressed() {
+	// TODO
+	return true;
 }
 
 BYTE rand_byte() {
