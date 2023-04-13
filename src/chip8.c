@@ -2,17 +2,17 @@
 
 // Globals
 
-BYTE mem[MEM_SIZE];
+uint8_t mem[MEM_SIZE];
 
-BYTE V[16];
-BYTE DT, ST; // Delay and sound timers
-BYTE SP; // Stack pointer
+uint8_t V[16];
+uint8_t DT, ST; // Delay and sound timers
+uint8_t SP; // Stack pointer
 
 uint16_t I; // Stores memory addresses
 uint16_t PC; // Program counter
 uint16_t stack[16];
 
-BYTE display[32][64];
+uint8_t display[32][64];
 
 int misses;
 
@@ -62,6 +62,9 @@ void init_chip8() {
 		V[i] = 0;
 		stack[i] = 0;
 	}
+
+	// Load fontset
+	memcpy(&mem, &fontset, sizeof(fontset)/sizeof(uint8_t));
 }
 
 void init_display() {
@@ -72,10 +75,10 @@ void cycle() {
 	// Fetch
 	uint16_t op = mem[PC] << 8 | mem[PC+1];
 	uint16_t nnn = op & 0x0FFF;
-	BYTE n = op & 0x000F;
-	BYTE x = (BYTE)(op & 0x0F00);
-	BYTE y = op & 0x00F0;
-	BYTE kk = op & 0x00FF;
+	uint8_t n = op & 0x000F;
+	uint8_t x = (uint8_t)(op & 0x0F00);
+	uint8_t y = op & 0x00F0;
+	uint8_t kk = op & 0x00FF;
 
 	switch (op & 0xF000) {
 		case 0x0000:
@@ -195,12 +198,12 @@ void cycle() {
 			break;
 		case 0xC000:
 			printf("RND V%d, kk\n", x);
-			V[x] = rand_byte() & kk;
+			V[x] = rand_uint8_t() & kk;
 			PC += 2;
 			break;
 		case 0xD000:
 			printf("DRW V%d, V%d, %d\n", x, y, n);
-			// Read n bytes starting at I, display at (Vx, Vy), VF = collision
+			// Read n uint8_ts starting at I, display at (Vx, Vy), VF = collision
 			// Wrap around screen
 			// Sprites are XORed onto the screen
 			draw_sprite();
@@ -210,11 +213,11 @@ void cycle() {
 			switch (op & 0x00FF) {
 				case 0x9E:
 					printf("SKP Vx\n");
-					PC += (Vx_pressed()) ? 4 : 2;
+					PC += (1) ? 4 : 2; // TODO
 					break;
 				case 0xA1:
 					printf("SKNP Vx\n");
-					PC += (Vx_pressed()) ? 2 : 4;
+					PC += (1) ? 2 : 4; // TODO
 					break;
 				default:
 					printf("Unrecognized opcode.");
@@ -224,8 +227,63 @@ void cycle() {
 			break;
 		case 0xF000:
 			switch (op & 0x00FF) {
+				case 0x07:
+					printf("LD Vx, DT\n");
+					V[x] = DT;;
+					PC += 2;
+					break;
+				case 0x0A:
+					printf("LD Vx, K\n");
+					// V[x] = K
+					PC += 2;
+					break;
+				case 0x15:
+					printf("LD DT, Vx\n");
+					DT = V[x];
+					PC += 2;
+					break;
+				case 0x18:
+					printf("LD ST, Vx\n");
+					ST = V[x];
+					PC += 2;
+					break;
+				case 0x1E:
+					printf("ADD I, Vx\n");
+					I += V[x];
+					PC += 2;
+					break;
+				case 0x29:
+					printf("LD F, Vx\n");
+					I = V[x] * 0x50;
+					PC += 2;
+					break;
+				case 0x33:
+					printf("LD B, Vx\n");
+					mem[I] = V[x] / 100;
+					mem[I + 1] = (V[x] / 10) % 10;
+					mem[I + 2] = V[x] % 10;
+					PC += 2;
+					break;
+				case 0x55:
+					printf("LD [I], Vx\n");
+					for (int i = 0; i < 15; i++) {
+						mem[I + i] = V[i];
+					}
 
+					I += 16;
+					PC += 2;
+					break;
+				case 0x65:
+					printf("LD [I], Vx\n");
+					for (int i = 0; i < 15; i++) {
+						V[i] = mem[I + i];
+					}
+
+					I += 16;
+					PC += 2;
+					break;
 			}
+			break;
 		default:
 			printf("Not implemented yet.\n");
 			misses++;
@@ -237,15 +295,10 @@ void draw_sprite() {
 	// TODO
 }
 
-bool Vx_pressed() {
-	// TODO
-	return true;
-}
-
-BYTE rand_byte() {
+uint8_t rand_uint8_t() {
 	return rand() % 255;
 }
 
 void print_misses() {
-	printf("Misses: %d", misses);
+	printf("Misses: %d\n", misses);
 }
