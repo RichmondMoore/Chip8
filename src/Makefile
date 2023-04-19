@@ -1,21 +1,21 @@
 CC = gcc
 
-INC_DIR = ./include
-CFLAGS = -Wall -Wextra -pedantic -std=c99 -I$(INC_DIR)
+CFLAGS = -Wall -Wextra -pedantic -std=c99
 DEBUG = -g
 
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
+LIBS = -lSDL2
 
 $(info Source files: $(SRC))
 
 all: chip8
 
 debug: $(OBJ)
-	$(CC) $(CFLAGS) $(DEBUG) -o $@ $^
+	$(CC) $(CFLAGS) $(DEBUG) $(LIBS) -o $@ $^
 
 chip8: $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
