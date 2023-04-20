@@ -1,12 +1,23 @@
 #include "chip8.h"
+#include "display.h"
 
 int main() {
-	load_rom("../ROMS/BRIX");
-
+	// Initialize
 	init_chip8();
-	for (int i = 0; i < 50000; i++)
-		cycle();
+	init_display();
 
-	print_misses();
+	// Start loop
+	bool quit = false;
+	while (!quit) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) {
+				quit = true;
+			}
+		}
+	}
+
+	cleanup_display();
+
 	return 0;
 }
