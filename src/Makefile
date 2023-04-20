@@ -1,7 +1,11 @@
 CC = gcc
 
 CFLAGS = -Wall -Wextra -pedantic -std=c99
-DEBUG = -g
+#DEBUG = -ggdb
+
+ifeq ($(MAKECMDGOALS), debug)
+	CFLAGS += -g
+endif
 
 OBJ_DIR = ./obj
 
@@ -10,17 +14,24 @@ OBJ = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 LIBS = -lSDL2
 
 $(info Source files: $(SRC))
+$(info LIBS: $(LIBS))
+
+.PHONY: clean debug
 
 # Builds chip8 executable (default)
 all: chip8
 
+clean:
+	rm -f $(OBJ) chip8
+	rm -f $(OBJ) debug
+
 # Build executable with debug information
-debug: $(OBJ_DIR) $(OBJ)
-	$(CC) $(CFLAGS) $(DEBUG) $(LIBS) -o $@ $(OBJ)
+debug: clean $(OBJ_DIR) $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LIBS)
 
 # Builds chip8 executable
 chip8: $(OBJ_DIR) $(OBJ)
-	$(CC) $(CFLAGS) $(LIBS) -o $@ $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LIBS)
 
 # Builds objects from source files
 $(OBJ_DIR)/%.o: %.c
@@ -29,8 +40,3 @@ $(OBJ_DIR)/%.o: %.c
 # Makes obj directory if it does not exist
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
-
-.PHONY: clean
-
-clean:
-	rm -f $(OBJ) chip8
