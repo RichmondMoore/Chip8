@@ -65,9 +65,8 @@ void init_chip8() {
 
 	// Load fontset
 	memcpy(&mem, &fontset, sizeof(fontset)/sizeof(uint8_t));
-}
 
-void init_display() {
+	// Allocate memory for display
 	memset(display, 0, sizeof(display));
 }
 
@@ -206,7 +205,7 @@ void cycle() {
 			// Read n uint8_ts starting at I, display at (Vx, Vy), VF = collision
 			// Wrap around screen
 			// Sprites are XORed onto the screen
-			draw_sprite();
+			
 			PC += 2;
 			break;
 		case 0xE000:
@@ -289,10 +288,6 @@ void cycle() {
 			misses++;
 			break;
 	}
-}
-
-void draw_sprite() {
-	// TODO
 }
 
 uint8_t rand_uint8_t() {

@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "display.h"
+
 // DEFINES
 
 #define MEM_SIZE        (4096)
@@ -37,7 +39,6 @@ extern int misses;
 
 void load_rom(char * path);
 void init_chip8();
-void init_display();
 void cycle();
 
 void draw_sprite();
