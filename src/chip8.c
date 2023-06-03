@@ -14,6 +14,8 @@ uint16_t stack[16];
 
 uint8_t display[32][64];
 
+uint32_t cycle_count;
+
 int misses;
 
 unsigned char fontset[80] = {
@@ -58,6 +60,8 @@ void init_chip8() {
 	SP = 0;
 
 	misses = 0;
+
+	cycle_count = 0;
 
 	for (int i = 0; i < 16; i++) {
 		V[i] = 0;
@@ -288,20 +292,18 @@ void cycle() {
 					break;
 				case 0x55:
 					printf("LD [I], Vx\n");
-					for (int i = 0; i <= V[x]; i++) {
+					for (int i = 0; i <= x; i++) {
 						mem[I + i] = V[i];
 					}
 
-					I += (V[x] + 1);
 					PC += 2;
 					break;
 				case 0x65:
 					printf("LD Vx, [I]\n");
-					for (int i = 0; i <= V[x]; i++) {
+					for (int i = 0; i <= x; i++) {
 						V[i] = mem[I + i];
 					}
 
-					I += (V[x] + 1);
 					PC += 2;
 					break;
 			}
