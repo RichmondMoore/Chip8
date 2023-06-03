@@ -30,7 +30,7 @@ void init_display() {
 
     // Create renderer
     chip8_display->renderer = SDL_CreateRenderer(chip8_display->window,
-        -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        -1, SDL_RENDERER_ACCELERATED);
 
     if (chip8_display->renderer == NULL) {
         printf("ERROR: Failed to create renderer, %s\n", SDL_GetError());
@@ -41,18 +41,39 @@ void init_display() {
 }
 
 void cleanup_display() {
-    // Cleanup
 	SDL_DestroyWindow(chip8_display->window);
 	SDL_Quit();
 }
 
-void draw_to_display(uint8_t display[64][32]) {
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 32; j++) {
+void draw_to_display(uint8_t display[32][64]) {
+    SDL_SetRenderDrawColor(chip8_display->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(chip8_display->renderer);
+
+    SDL_SetRenderDrawColor(chip8_display->renderer, 255, 255, 255, 255);
+    for (int i = 0; i < 32; i++) {
+        for (int j = 0; j < 64; j++) {
             if (display[i][j] == 1) {
-                SDL_Rect rect = {i * 10, j * 10, 10, 10};
-                SDL_renderFillRect(chip8_display->renderer, &rect);
+                // White pixel
+                int rect_width = DISPLAY_X / 64;
+                int rect_height = DISPLAY_Y / 32;
+
+                SDL_Rect rect;
+                rect.x = j * rect_width;
+                rect.y = i * rect_height;
+                rect.w = rect_width;
+                rect.h = rect_height;
+                SDL_RenderFillRect(chip8_display->renderer, &rect);
             }
         }
     }
+
+    if (chip8_display->renderer == NULL) exit(1);
+
+    SDL_RenderPresent(chip8_display->renderer);
+}
+
+void clear_display() {
+    SDL_SetRenderDrawColor(chip8_display->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(chip8_display->renderer);
+    SDL_RenderPresent(chip8_display->renderer);
 }
