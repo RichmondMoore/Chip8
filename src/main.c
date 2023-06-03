@@ -6,6 +6,8 @@ int main() {
 	init_chip8();
 	init_display();
 
+	load_rom("../ROMS/Tests/3-corax+.ch8");
+
 	// Start loop
 	bool quit = false;
 	while (!quit) {
@@ -15,6 +17,8 @@ int main() {
 				quit = true;
 			}
 		}
+
+		cycle();
 	}
 
 	cleanup_display();
