@@ -35,7 +35,7 @@ unsigned char fontset[80] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80   // F
 };
 
-void load_rom(char * path) {
+void load_rom(char *path) {
     FILE* fp;
     fp = fopen(path, "rb");
 
@@ -55,6 +55,7 @@ void load_rom(char * path) {
 void init_chip8() {
 	I = 0;
 	PC = 0x200;
+	SP = 0;
 
 	misses = 0;
 
@@ -64,10 +65,10 @@ void init_chip8() {
 	}
 
 	// Load fontset
-	memcpy(&mem, &fontset, sizeof(fontset)/sizeof(uint8_t));
+	memcpy(&mem, fontset, sizeof(fontset)/sizeof(fontset[0]));
 
 	// Allocate memory for display
-	memset(display, 0, sizeof(display));
+	memset(&display, 0, sizeof(display)/sizeof(display[0][0]));
 }
 
 void cycle() {
@@ -75,8 +76,8 @@ void cycle() {
 	uint16_t op = mem[PC] << 8 | mem[PC+1];
 	uint16_t nnn = op & 0x0FFF;
 	uint8_t n = op & 0x000F;
-	uint8_t x = (uint8_t)(op & 0x0F00);
-	uint8_t y = op & 0x00F0;
+	uint8_t x = (op >> 8) & 0x000F;
+	uint8_t y = (op >> 4) & 0x000F;
 	uint8_t kk = op & 0x00FF;
 
 	switch (op & 0xF000) {
@@ -84,15 +85,17 @@ void cycle() {
 			switch (kk) {
 				case 0x00E0:
 					printf("CLS\n");
+					clear_display();
 					memset(display, 0, sizeof(display));
 					PC += 2;
 					break;
 				case 0x00EE:
 					printf("RET\n");
-					PC = stack[SP--];
+					PC = stack[--SP];
 					break;
 				default:
 					printf("ERROR: Unknown opcode %d", op);
+					PC += 2;
 			}
 			break;
 		case 0x1000:
@@ -101,7 +104,7 @@ void cycle() {
 			break;
 		case 0x2000:
 			printf("CALL %d\n", nnn);
-			stack[++SP] = PC;
+			stack[SP++] = PC + 2;
 			PC = nnn;
 			break;
 		case 0x3000:
@@ -179,6 +182,7 @@ void cycle() {
 					break;
 				default:
 					printf("ERROR: Unknown opcode %d\n", op);
+					PC += 2;
 					break;
 			}
 			break;
@@ -205,7 +209,25 @@ void cycle() {
 			// Read n uint8_ts starting at I, display at (Vx, Vy), VF = collision
 			// Wrap around screen
 			// Sprites are XORed onto the screen
+			V[0xF] = 0;
+			uint8_t Y = V[y] % 32;
+			uint8_t X = V[x] % 64;
 			
+			for (int y_line = 0; y_line < n; y_line++) {
+				uint8_t pixel = mem[I + y_line];
+				for (int x_line = 0; x_line < 8; x_line++) {
+					uint8_t bit = (pixel & (0x80 >> x_line));
+					if (bit != 0) {
+						if (display[Y + y_line][X + x_line] == 1) {
+							V[0xF] = 1;
+						}
+
+						display[Y + y_line][X + x_line] ^= 1;
+					}
+				}
+			}
+
+			draw_to_display(display);
 			PC += 2;
 			break;
 		case 0xE000:
@@ -253,32 +275,33 @@ void cycle() {
 					break;
 				case 0x29:
 					printf("LD F, Vx\n");
-					I = V[x] * 0x50;
+					I = V[x] * 0x05;
 					PC += 2;
 					break;
 				case 0x33:
 					printf("LD B, Vx\n");
-					mem[I] = V[x] / 100;
-					mem[I + 1] = (V[x] / 10) % 10;
-					mem[I + 2] = V[x] % 10;
+					uint8_t val = V[x];
+					mem[I + 2] = val % 10; val /= 10;
+					mem[I + 1] = val % 10; val /= 10;
+					mem[I] = val % 10;
 					PC += 2;
 					break;
 				case 0x55:
 					printf("LD [I], Vx\n");
-					for (int i = 0; i < 15; i++) {
+					for (int i = 0; i <= V[x]; i++) {
 						mem[I + i] = V[i];
 					}
 
-					I += 16;
+					I += (V[x] + 1);
 					PC += 2;
 					break;
 				case 0x65:
-					printf("LD [I], Vx\n");
-					for (int i = 0; i < 15; i++) {
+					printf("LD Vx, [I]\n");
+					for (int i = 0; i <= V[x]; i++) {
 						V[i] = mem[I + i];
 					}
 
-					I += 16;
+					I += (V[x] + 1);
 					PC += 2;
 					break;
 			}

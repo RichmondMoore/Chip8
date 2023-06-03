@@ -41,7 +41,6 @@ void load_rom(char * path);
 void init_chip8();
 void cycle();
 
-void draw_sprite();
 bool Vx_pressed();
 uint8_t rand_uint8_t();
 
