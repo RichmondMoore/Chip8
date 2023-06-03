@@ -9,6 +9,26 @@
 
 #include "display.h"
 
+// Enums
+typedef enum {
+    KEY_1,
+    KEY_2,
+    KEY_3,
+    KEY_4,
+    KEY_Q,
+    KEY_W,
+    KEY_E,
+    KEY_R,
+    KEY_A,
+    KEY_S,
+    KEY_D,
+    KEY_F,
+    KEY_Z,
+    KEY_X,
+    KEY_C,
+    KEY_V
+} Keys;
+
 // DEFINES
 
 #define MEM_SIZE        (4096)
@@ -27,6 +47,8 @@ extern uint8_t V[16];
 extern uint8_t DT, ST; // Delay and sound timers
 extern uint8_t SP; // Stack pointer
 
+extern uint8_t keyboard[16];
+
 extern uint16_t I; // Stores memory addresses
 extern uint16_t PC; // Program counter
 extern uint16_t stack[16];
@@ -41,9 +63,7 @@ void load_rom(char * path);
 void init_chip8();
 void cycle();
 
-bool Vx_pressed();
 uint8_t rand_uint8_t();
-
-void print_misses();
+void set_key(uint8_t index);
 
 #endif

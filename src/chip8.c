@@ -8,6 +8,8 @@ uint8_t V[16];
 uint8_t DT, ST; // Delay and sound timers
 uint8_t SP; // Stack pointer
 
+uint8_t keyboard[16];
+
 uint16_t I; // Stores memory addresses
 uint16_t PC; // Program counter
 uint16_t stack[16];
@@ -68,11 +70,14 @@ void init_chip8() {
 		stack[i] = 0;
 	}
 
-	// Load fontset
+	// Load fontset data
 	memcpy(&mem, fontset, sizeof(fontset)/sizeof(fontset[0]));
 
-	// Allocate memory for display
+	// Allocate memory for display data
 	memset(&display, 0, sizeof(display)/sizeof(display[0][0]));
+
+	// Allocate memory for keyboard data
+	memset(&keyboard, 0, sizeof(keyboard)/sizeof(keyboard[0]));
 }
 
 void cycle() {
@@ -83,6 +88,9 @@ void cycle() {
 	uint8_t x = (op >> 8) & 0x000F;
 	uint8_t y = (op >> 4) & 0x000F;
 	uint8_t kk = op & 0x00FF;
+
+	uint8_t x_val;
+	uint8_t y_val;
 
 	switch (op & 0xF000) {
 		case 0x0000:
@@ -133,7 +141,7 @@ void cycle() {
 			V[x] += kk;
 			PC += 2;
 			break;
-		case 0x8000:
+		case 0x8000: // Arithmetic Instructions
 			switch (op & 0x000F) {
 				case 0x0000:
 					printf("LD V%d, V%d\n", x, y);
@@ -157,31 +165,40 @@ void cycle() {
 					break;
 				case 0x0004:
 					printf("ADD V%d, V%d\n", x, y);
+					x_val = V[x];
+					y_val = V[y];
 					V[x] += V[y];
+					V[0xF] = ((int) x_val + (int) y_val) > 255 ? 1 : 0;
 					PC += 2;
 					break;
 				case 0x0005:
 					printf("SUB V%d, V%d\n", x, y);
-					V[0xF] = (V[x] > V[y]) ? 1 : 0;
+					x_val = V[x];
+					y_val = V[y];
 					V[x] -= V[y];
+					V[0xF] = (x_val > y_val) ? 1 : 0;
 					PC += 2;
 					break;
 				case 0x0006:
 					printf("SHR V%d\n", x);
-					V[0xF] = V[x] % 2;
-					V[x] >>= 1;
+					x_val = V[x];
+					V[x] = V[x] >> 1;
+					V[0xF] = x_val & 0x1;
 					PC += 2;
 					break;
 				case 0x0007:
 					printf("SUBN V%d, V%d\n", x, y);
-					V[0xF] = (V[y] > V[x]) ? 1 : 0;
+					x_val = V[x];
+					y_val = V[y];
 					V[x] = V[y] - V[x];
+					V[0xF] = (y_val > x_val) ? 1 : 0;					
 					PC += 2;
 					break;
 				case 0x000E:
 					printf("SHL V%d\n", x);
-					V[0xF] = V[x] >> 3;
-					V[x] <<= 1;
+					x_val = V[x];
+					V[x] = V[x] << 1;
+					V[0xF] = (x_val >> 7) & 0x1;
 					PC += 2;
 					break;
 				default:
@@ -234,15 +251,15 @@ void cycle() {
 			draw_to_display(display);
 			PC += 2;
 			break;
-		case 0xE000:
+		case 0xE000: // User Input Instructions
 			switch (op & 0x00FF) {
 				case 0x9E:
 					printf("SKP Vx\n");
-					PC += (1) ? 4 : 2; // TODO
+					PC += keyboard[V[x]] ? 4 : 2;
 					break;
 				case 0xA1:
 					printf("SKNP Vx\n");
-					PC += (1) ? 2 : 4; // TODO
+					PC += !keyboard[V[x]] ? 4 : 2;
 					break;
 				default:
 					printf("Unrecognized opcode.");
@@ -309,8 +326,7 @@ void cycle() {
 			}
 			break;
 		default:
-			printf("Not implemented yet.\n");
-			misses++;
+			printf("ERROR: Unknown opcode.\n");
 			break;
 	}
 }
@@ -319,6 +335,6 @@ uint8_t rand_uint8_t() {
 	return rand() % 255;
 }
 
-void print_misses() {
-	printf("Misses: %d\n", misses);
+void set_key(uint8_t index) {
+	keyboard[index] = 1;
 }
