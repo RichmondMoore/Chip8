@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -pedantic -std=c99
+CFLAGS = -Wall -Wextra -Wpedantic -std=c99
 #DEBUG = -ggdb
 
 ifeq ($(MAKECMDGOALS), debug)
