@@ -9,26 +9,6 @@
 
 #include "display.h"
 
-// Enums
-typedef enum {
-    KEY_1,
-    KEY_2,
-    KEY_3,
-    KEY_4,
-    KEY_Q,
-    KEY_W,
-    KEY_E,
-    KEY_R,
-    KEY_A,
-    KEY_S,
-    KEY_D,
-    KEY_F,
-    KEY_Z,
-    KEY_X,
-    KEY_C,
-    KEY_V
-} Keys;
-
 // DEFINES
 
 #define MEM_SIZE        (4096)
@@ -57,13 +37,17 @@ extern uint8_t display[32][64];
 
 extern int misses;
 
+extern uint8_t key_is_pressed;
+
 // FUNCTIONS
 
 void load_rom(char * path);
 void init_chip8();
 void cycle();
 
+void decrement_timers();
+
 uint8_t rand_uint8_t();
-void set_key(uint8_t index);
+void set_key(uint8_t index, uint8_t state);
 
 #endif
