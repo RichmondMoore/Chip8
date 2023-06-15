@@ -6,7 +6,7 @@ int main() {
 	init_chip8();
 	init_display();
 
-	load_rom("../ROMS/Tests/4-flags.ch8");
+	load_rom("../ROMS/Tests/6-keypad.ch8");
 
 	// Start loop
 	bool quit = false;
@@ -18,60 +18,114 @@ int main() {
 					quit = true;
 					break;
 				case SDL_KEYDOWN:
-					// keyboard[pressed key] = 1
-					switch (event.key.type) {
+				printf("Pressed: %d\n", event.key.keysym.sym);
+					switch (event.key.keysym.sym) {
 						case SDLK_1:
-							set_key(KEY_1);
+							set_key(0x1, 1);
 							break;
 						case SDLK_2:
-							set_key(KEY_2);
+							set_key(0x2, 1);
 							break;
 						case SDLK_3:
-							set_key(KEY_3);
+							set_key(0x3, 1);
 							break;
 						case SDLK_4:
-							set_key(KEY_4);
+							set_key(0xC, 1);
 							break;
 						case SDLK_q:
-							set_key(KEY_Q);
+							set_key(0x4, 1);
 							break;
 						case SDLK_w:
-							set_key(KEY_W);
+							set_key(0x5, 1);
 							break;
 						case SDLK_e:
-							set_key(KEY_E);
+							set_key(0x6, 1);
 							break;
 						case SDLK_r:
-							set_key(KEY_R);
+							set_key(0xD, 1);
 							break;
 						case SDLK_a:
-							set_key(KEY_A);
+							set_key(0x7, 1);
 							break;
 						case SDLK_s:
-							set_key(KEY_S);
+							set_key(0x8, 1);
 							break;
 						case SDLK_d:
-							set_key(KEY_D);
+							set_key(0x9, 1);
 							break;
 						case SDLK_f:
-							set_key(KEY_F);
+							set_key(0xE, 1);
 							break;
 						case SDLK_z:
-							set_key(KEY_Z);
+							set_key(0x10, 1);
 							break;
 						case SDLK_x:
-							set_key(KEY_X);
+							set_key(0x0, 1);
 							break;
 						case SDLK_c:
-							set_key(KEY_C);
+							set_key(0xB, 1);
 							break;
 						case SDLK_v:
-							set_key(KEY_V);
+							set_key(0xF, 1);
 							break;
 						default:
 							break;
 					}
 					break;
+				case SDL_KEYUP:
+					printf("Release: %d\n", event.key.keysym.sym);
+					switch (event.key.keysym.sym) {
+						case SDLK_1:
+							set_key(0x1, 0);
+							break;
+						case SDLK_2:
+							set_key(0x2, 0);
+							break;
+						case SDLK_3:
+							set_key(0x3, 0);
+							break;
+						case SDLK_4:
+							set_key(0xC, 0);
+							break;
+						case SDLK_q:
+							set_key(0x4, 0);
+							break;
+						case SDLK_w:
+							set_key(0x5, 0);
+							break;
+						case SDLK_e:
+							set_key(0x6, 0);
+							break;
+						case SDLK_r:
+							set_key(0xD, 0);
+							break;
+						case SDLK_a:
+							set_key(0x7, 0);
+							break;
+						case SDLK_s:
+							set_key(0x8, 0);
+							break;
+						case SDLK_d:
+							set_key(0x9, 0);
+							break;
+						case SDLK_f:
+							set_key(0xD, 0);
+							break;
+						case SDLK_z:
+							set_key(0x10, 0);
+							break;
+						case SDLK_x:
+							set_key(0x0, 0);
+							break;
+						case SDLK_c:
+							set_key(0x11, 0);
+							break;
+						case SDLK_v:
+							set_key(0xF, 0);
+							break;
+						default:
+							break;
+					}
 			}
 		}
 
