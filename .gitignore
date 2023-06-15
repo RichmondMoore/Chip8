@@ -91,4 +91,7 @@ dkms.conf
 .history
 .ionide
 
+# Ignore ROMS
+./ROMS
+
 # End of https://www.toptal.com/developers/gitignore/api/c,linux,visualstudiocode
