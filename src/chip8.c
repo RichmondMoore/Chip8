@@ -18,6 +18,8 @@ uint8_t display[32][64];
 
 uint32_t cycle_count;
 
+uint8_t key_is_pressed;
+
 int misses;
 
 unsigned char fontset[80] = {
@@ -225,7 +227,7 @@ void cycle() {
 			V[x] = rand_uint8_t() & kk;
 			PC += 2;
 			break;
-		case 0xD000:
+		case 0xD000: {
 			printf("DRW V%d, V%d, %d\n", x, y, n);
 			// Read n uint8_ts starting at I, display at (Vx, Vy), VF = collision
 			// Wrap around screen
@@ -251,6 +253,7 @@ void cycle() {
 			draw_to_display(display);
 			PC += 2;
 			break;
+		}
 		case 0xE000: // User Input Instructions
 			switch (op & 0x00FF) {
 				case 0x9E:
@@ -271,14 +274,28 @@ void cycle() {
 			switch (op & 0x00FF) {
 				case 0x07:
 					printf("LD Vx, DT\n");
-					V[x] = DT;;
+					V[x] = DT;
 					PC += 2;
 					break;
-				case 0x0A:
+				case 0x0A: {
+					// Pause execution until a key is pressed
+					// Store pressed key into V[x]
 					printf("LD Vx, K\n");
-					// V[x] = K
-					PC += 2;
+
+					uint8_t key_pressed = 0;
+
+					// Stop at first pressed key
+					for (int i = 0; i < 16; i++) {
+						if (keyboard[i] == 1) {
+							V[x] = keyboard[i];
+							key_pressed = 1;
+							break;
+						}
+					}
+					
+					if (key_pressed) PC += 2;
 					break;
+				}
 				case 0x15:
 					printf("LD DT, Vx\n");
 					DT = V[x];
@@ -299,7 +316,7 @@ void cycle() {
 					I = V[x] * 0x05;
 					PC += 2;
 					break;
-				case 0x33:
+				case 0x33: {
 					printf("LD B, Vx\n");
 					uint8_t val = V[x];
 					mem[I + 2] = val % 10; val /= 10;
@@ -307,6 +324,7 @@ void cycle() {
 					mem[I] = val % 10;
 					PC += 2;
 					break;
+				}
 				case 0x55:
 					printf("LD [I], Vx\n");
 					for (int i = 0; i <= x; i++) {
@@ -329,12 +347,20 @@ void cycle() {
 			printf("ERROR: Unknown opcode.\n");
 			break;
 	}
+
+	decrement_timers();
+}
+
+void decrement_timers() {
+	DT--;
+	ST--;
 }
 
 uint8_t rand_uint8_t() {
 	return rand() % 255;
 }
 
-void set_key(uint8_t index) {
-	keyboard[index] = 1;
+void set_key(uint8_t index, uint8_t state) {
+	keyboard[index] = state;
+	key_is_pressed = state;
 }
