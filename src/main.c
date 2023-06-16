@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
 	init_display();
 
 	if (argc >= 2) load_rom(argv[1]);
-	else load_rom("../ROMS/Tests/6-keypad.ch8");
+	else load_rom("../ROMS/BRIX.ch8");
 
 	if (argc == 3) instructions_per_second = atoi(argv[2]);
 
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		cycle();
-		SDL_Delay((1000/instructions_per_second));
+		SDL_Delay((float)(1000/instructions_per_second));
 		count++;
 
 		if (count == (instructions_per_second / 60)) {
