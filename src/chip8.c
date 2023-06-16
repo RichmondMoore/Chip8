@@ -352,8 +352,8 @@ void cycle() {
 }
 
 void decrement_timers() {
-	DT--;
-	ST--;
+	if (DT > 0) DT--;
+	if (ST > 0) ST--;
 }
 
 uint8_t rand_uint8_t() {
