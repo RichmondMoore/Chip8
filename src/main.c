@@ -1,12 +1,17 @@
 #include "chip8.h"
-#include "display.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+	int instructions_per_second = 540;
+	int count = 0;
+
 	// Initialize
 	init_chip8();
 	init_display();
 
-	load_rom("../ROMS/Tests/6-keypad.ch8");
+	if (argc >= 2) load_rom(argv[1]);
+	else load_rom("../ROMS/Tests/6-keypad.ch8");
+
+	if (argc == 3) instructions_per_second = atoi(argv[2]);
 
 	// Start loop
 	bool quit = false;
@@ -130,6 +135,14 @@ int main() {
 		}
 
 		cycle();
+		SDL_Delay((1000/instructions_per_second));
+		count++;
+
+		if (count == (instructions_per_second / 60)) {
+			decrement_timers();
+			count = 0;
+		}
+		
 	}
 
 	cleanup_display();
