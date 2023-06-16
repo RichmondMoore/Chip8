@@ -22,8 +22,6 @@ uint8_t key_is_pressed;
 
 int misses;
 
-
-
 unsigned char fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
     0x20, 0x60, 0x20, 0x20, 0x70,  // 1
@@ -354,8 +352,8 @@ void cycle() {
 }
 
 void decrement_timers() {
-	if (DT > 0) DT--;
-	if (ST > 0) ST--;
+	DT--;
+	ST--;
 }
 
 uint8_t rand_uint8_t() {
