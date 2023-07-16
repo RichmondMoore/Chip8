@@ -5,6 +5,10 @@ Technical reference: http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
 Projet is now functionally complete, although not perfect.
 
+## Update
+
+I am now in the process of rewriting this project, with the goals of learning Raylib and making the code more readable. Efforts are being made to extend the GUI to show more relevant information and add a debug mode to allow the user more control over the interpretor.
+
 ## Usage
 
 To build, enter `make build`
