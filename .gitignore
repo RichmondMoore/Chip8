@@ -74,6 +74,7 @@ dkms.conf
 
 ### VisualStudioCode ###
 .vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -92,6 +93,6 @@ dkms.conf
 .ionide
 
 # Ignore ROMS
-./ROMS
+ROMS/
 
 # End of https://www.toptal.com/developers/gitignore/api/c,linux,visualstudiocode
