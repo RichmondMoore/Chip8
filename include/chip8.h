@@ -35,7 +35,7 @@ typedef struct {
 
     uint8_t key_is_pressed;
 
-
+    uint16_t current_op;
 } Chip8;
 
 uint8_t fontset[80] =  {
@@ -68,6 +68,39 @@ void fetch(Chip8 *chip8);
 void decode(Chip8 *chip8);
 
 // Opcodes
-
+void clear_screen(Chip8 *chip8);
+void return_subroutine(Chip8 *chip8);
+void jump(Chip8 *chip8);
+void call_subroutine(Chip8 *chip8);
+void skip_if_equal(Chip8 *chup8);
+void skip_if_not_equal(Chip8 *chip8);
+void skip_if_regs_equal(Chip8 *chip8);
+void set_reg(Chip8 *chip8);
+void add_imm_to_reg(Chip8 *chip8);
+void set_reg_to_reg(Chip8 *chip8);
+void set_reg_or(Chip8 *chip8);
+void set_reg_and(Chip8 *chip8);
+void set_reg_xor(Chip8 *chip8);
+void add_regs(Chip8 *chip8);
+void sub_regs(Chip8 *chip8);
+void shift_reg_right(Chip8 *chip8);
+void sub_regs_reverse(Chip8 *chip8);
+void shift_reg_left(Chip8 *chip8);
+void skip_if_regs_not_equal(Chip8 *chip8);
+void set_i(Chip8 *chip8);
+void jump_indirect(Chip8 *chip8);
+void set_reg_random(Chip8 *chip8);
+void draw(Chip8 *chip8);
+void skip_if_key_presed(Chip8 *chip8);
+void skip_if_key_not_pressed(Chip8 *chip8);
+void set_reg_to_dt(Chip8 *chip8);
+void store_key_press(Chip8 *chip8);
+void set_dt(Chip8 *chip8);
+void set_st(Chip8 *chip8);
+void add_reg_to_i(Chip8 *chip8);
+void load_sprite_address(Chip8 *chip8);
+void store_bcd(Chip8 *chip8);
+void store_regs(Chip8 *chip8);
+void load_regs(Chip8 *chip8);
 
 #endif
