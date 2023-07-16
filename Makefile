@@ -36,7 +36,7 @@ chip8: $(OBJ_DIR) $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LIBS)
 
 # Builds objects from source files
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Makes obj directory if it does not exist
