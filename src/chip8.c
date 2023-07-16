@@ -48,3 +48,19 @@ void load_rom(Chip8 *chip8, char *path) {
 void load_fontset(Chip8 *chip8) {
     memcpy(&chip8->mem, fontset, sizeof(fontset)/sizeof(fontset[0]));
 }
+
+void fetch(Chip8 *chip8) {
+    chip8->current_op = chip8->mem[chip8->PC] << 8 | chip8->mem[chip8->PC + 1];
+}
+
+void decode(Chip8 *chip8) {
+    uint16_t op = chip8->current_op;
+
+    switch (chip8->current_op & 0xF000) {
+        case 0x0000:
+            switch (op & 0x00FF) {
+
+            }
+    }
+
+}
