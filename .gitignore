@@ -94,4 +94,8 @@ dkms.conf
 # Ignore ROMS
 ./ROMS
 
+# Ignore executables
+src/debug
+src/chip8
+
 # End of https://www.toptal.com/developers/gitignore/api/c,linux,visualstudiocode
