@@ -59,7 +59,7 @@ uint8_t fontset[80] =  {
 
 // FUNCTIONS
 
-void interpret();
+void run();
 void init_cpu(Chip8 *chip8);
 void init_display(Chip8 *chip8);
 void load_rom(Chip8 *chip8, char *path);
@@ -70,12 +70,12 @@ void decode(Chip8 *chip8);
 // Opcodes
 void clear_screen(Chip8 *chip8);
 void return_subroutine(Chip8 *chip8);
-void jump(Chip8 *chip8);
+void jump(Chip8 *chip8, uint16_t);
 void call_subroutine(Chip8 *chip8);
-void skip_if_equal(Chip8 *chup8);
-void skip_if_not_equal(Chip8 *chip8);
-void skip_if_regs_equal(Chip8 *chip8);
-void set_reg(Chip8 *chip8);
+void skip_if_equal(Chip8 *chip8, uint8_t x, uint8_t kk);
+void skip_if_not_equal(Chip8 *chip8, uint8_t x, uint8_t kk);
+void skip_if_regs_equal(Chip8 *chip8, uint8_t x, uint8_t y);
+void set_reg(Chip8 *chip8, uint8_t x, uint8_t kk);
 void add_imm_to_reg(Chip8 *chip8);
 void set_reg_to_reg(Chip8 *chip8);
 void set_reg_or(Chip8 *chip8);
