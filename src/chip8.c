@@ -91,6 +91,55 @@ void decode(Chip8 *chip8) {
             skip_if_regs_equal(chip8, x, y);
             break;
         case 0x6000:
+            set_reg(chip8, x, kk);
+            break;
+        case 0x7000:
+            add_imm_to_reg(chip8,x, kk);
+            break;
+        case 0x8000:
+            switch (op & 0x000F) {
+                case 0x000:
+                    set_reg_to_reg(chip8, x, y);
+                    break;
+                case 0x001:
+                    set_reg_or(chip8, x, y);
+                    break;
+                case 0x002:
+                    set_reg_and(chip8, x, y);
+                    break;
+                case 0x003:
+                    set_reg_xor(chip8, x, y);
+                    break;
+                case 0x004:
+                    add_regs(chip8, x, y);
+                    break;
+                case 0x005:
+                    sub_regs(chip8, x, y);
+                    break;
+                case 0x006:
+                    shift_reg_right(chip8, x);
+                    break;
+                case 0x007:
+                    sub_regs_reverse(chip8, x, y);
+                    break;
+                case 0x00E:
+                    shift_reg_lef(chip8, x);
+                    break;
+            }
+            break;
+        case 0x9000:
+            skip_if_regs_not_equal(chip8, x, y);
+            break;
+        case 0xA000:
+            set_i(chip8, nnn);
+            break;
+        case 0xB000:
+            jump_indirect(chip8, nnn);
+            break;
+        case 0xC000:
+            set_reg_random(chip8, x);
+            break;
+        case 0xD000:
     }
 
     chip8->PC += 2;
@@ -128,29 +177,90 @@ void skip_if_not_equal(Chip8 *chip8, uint8_t x, uint8_t kk) {
 }
 
 void skip_if_regs_equal(Chip8 *chip8, uint8_t x, uint8_t y) {
-    if (chip8->V[x] != chip8->V[y]) chip8->PC += 2;
+    if (chip8->V[x] == chip8->V[y]) chip8->PC += 2;
     return;
 }
+
 void set_reg(Chip8 *chip8, uint8_t x, uint8_t kk) {
     chip8->V[x] = kk;
     return;
 }
 
-void add_imm_to_reg(Chip8 *chip8);
-void set_reg_to_reg(Chip8 *chip8);
-void set_reg_or(Chip8 *chip8);
-void set_reg_and(Chip8 *chip8);
-void set_reg_xor(Chip8 *chip8);
-void add_regs(Chip8 *chip8);
-void sub_regs(Chip8 *chip8);
-void shift_reg_right(Chip8 *chip8);
-void sub_regs_reverse(Chip8 *chip8);
-void shift_reg_left(Chip8 *chip8);
-void skip_if_regs_not_equal(Chip8 *chip8);
-void set_i(Chip8 *chip8);
-void jump_indirect(Chip8 *chip8);
-void set_reg_random(Chip8 *chip8);
-void draw(Chip8 *chip8);
+void add_imm_to_reg(Chip8 *chip8, uint8_t x, uint8_t kk) {
+    chip8->V[x] += kk;
+    return;
+}
+
+void set_reg_to_reg(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] = chip8->V[y];
+    return;
+}
+
+void set_reg_or(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] |= chip8->V[y];
+    return;
+}
+
+void set_reg_and(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] &= chip8->V[y];
+    return;
+}
+
+void set_reg_xor(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] ^= chip8->V[y];
+    return;
+}
+
+void add_regs(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] += chip8->V[y];
+    chip8->V[0xF] = ((int) x + (int) y) > 255 ? 1 : 0;
+    return;
+}
+
+void sub_regs(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] -= chip8->V[y];
+    chip8->V[0xF] = (x > y) > 255 ? 1 : 0;
+    return;
+}
+
+void shift_reg_right(Chip8 *chip8, uint8_t x) {
+    chip8->V[x] = chip8->V[x] >> 1;
+    chip8->V[0xF] = x & 0x1;
+    return;
+}
+
+void sub_regs_reverse(Chip8 *chip8, uint8_t x, uint8_t y) {
+    chip8->V[x] = chip8->V[y] - chip8->V[x];
+    chip8->V[0xF] = (y > x) ? 1 : 0;
+    return;
+}
+
+void shift_reg_left(Chip8 *chip8, uint8_t x) {
+    chip8->V[x] = chip8->V[x] << 1;
+    chip8->V[0xF] = (x >> 7) & 0x1;
+    return;
+}
+
+void skip_if_regs_not_equal(Chip8 *chip8, uint8_t x, uint8_t y) {
+    if (chip8->V[x] != chip8->V[y]) chip8->PC += 2;
+    return;
+}
+
+void set_i(Chip8 *chip8, uint16_t nnn) {
+    chip8->I = nnn;
+    return;
+}
+
+void jump_indirect(Chip8 *chip8, uint16_t nnn) {
+    chip8->PC = chip8->V[0] + nnn;
+    return;
+}
+
+void set_reg_random(Chip8 *chip8, uint8_t x) {
+    chip8->V[x] = rand() % 255;
+}
+
+void draw(Chip8 *chip8, uint8_t x, uint8_t y);
 void skip_if_key_presed(Chip8 *chip8);
 void skip_if_key_not_pressed(Chip8 *chip8);
 void set_reg_to_dt(Chip8 *chip8);
