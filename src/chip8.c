@@ -21,11 +21,11 @@ void init_cpu(Chip8 *chip8) {
         chip8->stack[i] = 0;
     }
 
-    memset(&chip8->keyboard, 0, sizeof(chip8->keyboard)/sizeof(chip8->keyboard[0]));
+    memset(&chip8->keyboard, 0, sizeof(uint8_t) * sizeof(chip8->keyboard)/sizeof(chip8->keyboard[0]));
 }
 
 void init_display(Chip8 *chip8) {
-    memset(&chip8->display, 0, sizeof(chip8->display)/sizeof(chip8->display[0]));
+    memset(&chip8->display, 0, sizeof(uint8_t) * sizeof(chip8->display)/sizeof(chip8->display[0]));
 }
 
 void load_rom(Chip8 *chip8, char *path) {
@@ -123,7 +123,7 @@ void decode(Chip8 *chip8) {
                     sub_regs_reverse(chip8, x, y);
                     break;
                 case 0x00E:
-                    shift_reg_lef(chip8, x);
+                    shift_reg_left(chip8, x);
                     break;
             }
             break;
@@ -219,7 +219,7 @@ void add_regs(Chip8 *chip8, uint8_t x, uint8_t y) {
 
 void sub_regs(Chip8 *chip8, uint8_t x, uint8_t y) {
     chip8->V[x] -= chip8->V[y];
-    chip8->V[0xF] = (x > y) > 255 ? 1 : 0;
+    chip8->V[0xF] = (int)(x > y) > 255 ? 1 : 0;
     return;
 }
 
