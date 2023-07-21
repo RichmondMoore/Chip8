@@ -30,8 +30,7 @@ typedef struct {
     uint16_t stack[16];
 
     uint8_t display[32][64];
-
-    int misses;
+    uint8_t draw_flag;
 
     uint8_t key_is_pressed;
 
@@ -90,7 +89,7 @@ void skip_if_regs_not_equal(Chip8 *chip8, uint8_t x, uint8_t y);
 void set_i(Chip8 *chip8, uint16_t nnn);
 void jump_indirect(Chip8 *chip8, uint16_t nnn);
 void set_reg_random(Chip8 *chip8, uint8_t x);
-void draw(Chip8 *chip8, uint8_t x, uint8_t y);
+void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n);
 void skip_if_key_presed(Chip8 *chip8);
 void skip_if_key_not_pressed(Chip8 *chip8);
 void set_reg_to_dt(Chip8 *chip8);
