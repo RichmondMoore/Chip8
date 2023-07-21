@@ -1,4 +1,5 @@
 #include "chip8.h"
+#include "display.h"
 
 void run() {
     Chip8 chip8;
@@ -7,6 +8,15 @@ void run() {
     init_display(&chip8);
     load_rom(&chip8, "ROMS/Tests/1-chip8-logo.ch8");
     load_fontset(&chip8);
+
+    while (1) {
+        fetch(&chip8);
+        decode(&chip8);
+
+        if (chip8.draw_flag) {
+            // Call to display.c function
+        }
+    }
 }
 
 void init_cpu(Chip8 *chip8) {
@@ -25,7 +35,8 @@ void init_cpu(Chip8 *chip8) {
 }
 
 void init_display(Chip8 *chip8) {
-    memset(&chip8->display, 0, sizeof(uint8_t) * sizeof(chip8->display)/sizeof(chip8->display[0]));
+    memset(&chip8->display, 0, sizeof(chip8->display)/sizeof(chip8->display[0]));
+    raylib_init();
 }
 
 void load_rom(Chip8 *chip8, char *path) {
@@ -140,6 +151,10 @@ void decode(Chip8 *chip8) {
             set_reg_random(chip8, x);
             break;
         case 0xD000:
+            draw(chip8, x, y, n);
+            break;
+        default:
+            break;
     }
 
     chip8->PC += 2;
@@ -219,7 +234,7 @@ void add_regs(Chip8 *chip8, uint8_t x, uint8_t y) {
 
 void sub_regs(Chip8 *chip8, uint8_t x, uint8_t y) {
     chip8->V[x] -= chip8->V[y];
-    chip8->V[0xF] = (int)(x > y) > 255 ? 1 : 0;
+    chip8->V[0xF] = (x > y) ? 1 : 0;
     return;
 }
 
@@ -260,7 +275,38 @@ void set_reg_random(Chip8 *chip8, uint8_t x) {
     chip8->V[x] = rand() % 255;
 }
 
-void draw(Chip8 *chip8, uint8_t x, uint8_t y);
+void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n) {
+    // Read n bytes of memory from I, at (Vx, Vy)
+    // Xor onto screen, if pixel is erased, set Vf = 1
+    // Wrap around screen
+
+    // Display ref: [32][64]->[Y][X]
+    chip8->V[0xF] = 0; // Preemptively set to 0
+
+    // Wrap X and Y coords
+    uint8_t X = chip8->V[x] % 64;
+    uint8_t Y = chip8->V[y] % 32;
+
+    uint8_t pixel_count = 0;
+
+    for (uint8_t y_line = 0; pixel_count < n; y_line++) {
+        uint8_t pixel = chip8->mem[chip8->I + y_line];
+        pixel_count++;
+
+        for (uint8_t x_line = 0; x_line < 8; x_line++) {
+            uint8_t bit = (pixel & (0x80 >> x_line));
+            if (bit != 0) {
+                if (chip8->display[Y + y_line][X + x_line] == 1) {
+                    chip8->V[0xF] = 1;
+                }
+                chip8->display[Y + y_line][X + x_line] ^= 1;
+            }
+        }
+    }
+
+    chip8->draw_flag = 1;
+}
+
 void skip_if_key_presed(Chip8 *chip8);
 void skip_if_key_not_pressed(Chip8 *chip8);
 void set_reg_to_dt(Chip8 *chip8);

@@ -22,4 +22,6 @@
 // update left and right panels (separate functions)
 // if in debug mode, show instructions
 
+void raylib_init();
+
 #endif
