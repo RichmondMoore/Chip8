@@ -13,7 +13,7 @@ OBJ_DIR = ./src/obj
 
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(SRC))
-LIBS = -lraylib
+LIBS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 $(info Source files: $(SRC))
 $(info LIBS: $(LIBS))
