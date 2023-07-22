@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -Wpedantic -std=c99 -I$(INCLUDE_DIR) -L$(LIB_DIR)
 #DEBUG = -ggdb
 
 ifeq ($(MAKECMDGOALS), debug)
-	CFLAGS += -pg
+	CFLAGS += -pg -g
 endif
 
 INCLUDE_DIR = ./include
