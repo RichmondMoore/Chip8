@@ -1,5 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "chip8.h"
 #include "display.h"
+
+uint8_t fontset[80] =  {
+    0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
+    0x20, 0x60, 0x20, 0x20, 0x70,  // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0,  // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0,  // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10,  // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0,  // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0,  // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40,  // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0,  // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0,  // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90,  // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0,  // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0,  // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0,  // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0,  // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80   // F
+};
 
 void run() {
     Chip8 chip8;
@@ -9,14 +32,18 @@ void run() {
     load_rom(&chip8, "ROMS/Tests/1-chip8-logo.ch8");
     load_fontset(&chip8);
 
-    while (1) {
+    while (!should_exit()) {
         fetch(&chip8);
         decode(&chip8);
 
         if (chip8.draw_flag) {
-            // Call to display.c function
+            draw_display(&chip8);
         }
     }
+
+    close_display();
+
+    return;
 }
 
 void init_cpu(Chip8 *chip8) {
@@ -35,7 +62,7 @@ void init_cpu(Chip8 *chip8) {
 }
 
 void init_display(Chip8 *chip8) {
-    memset(&chip8->display, 0, sizeof(chip8->display)/sizeof(chip8->display[0]));
+    memset(&chip8->display, 0, sizeof(chip8->display));
     raylib_init();
 }
 
@@ -73,7 +100,7 @@ void decode(Chip8 *chip8) {
 	uint8_t y = (op >> 4) & 0x000F;
 	uint8_t kk = op & 0x00FF;
 
-    switch (chip8->current_op & 0xF000) {
+    switch (op & 0xF000) {
         case 0x0000:
             switch (op & 0x00FF) {
                 case 0x00E0:
@@ -81,17 +108,23 @@ void decode(Chip8 *chip8) {
                     break;
                 case 0x00EE:
                     return_subroutine(chip8);
-                    break;
+                    return;
+                    break; // Unreachable
                 default:
                     printf("ERROR: Unknown opcode %04X\n", op);
+                    printf("Current PC: 0x%04X\n", chip8->PC);
+                    exit(EXIT_FAILURE);
+                    break; // Unreachable
             }
             break;
         case 0x1000:
             jump(chip8, nnn);
-            break;
+            return;
+            break; // Unreachable
         case 0x2000:
             call_subroutine(chip8);
-            break;
+            return;
+            break; // Unreachable
         case 0x3000:
             skip_if_equal(chip8, x, kk);
             break;
@@ -154,6 +187,7 @@ void decode(Chip8 *chip8) {
             draw(chip8, x, y, n);
             break;
         default:
+            exit(EXIT_FAILURE);
             break;
     }
 
@@ -162,6 +196,7 @@ void decode(Chip8 *chip8) {
 
 void clear_screen(Chip8 *chip8) {
     memset(chip8->display, 0, sizeof(chip8->display));
+    chip8->draw_flag = true;
     return;
 }
 
@@ -287,11 +322,8 @@ void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n) {
     uint8_t X = chip8->V[x] % 64;
     uint8_t Y = chip8->V[y] % 32;
 
-    uint8_t pixel_count = 0;
-
-    for (uint8_t y_line = 0; pixel_count < n; y_line++) {
+    for (uint8_t y_line = 0; y_line< n; y_line++) {
         uint8_t pixel = chip8->mem[chip8->I + y_line];
-        pixel_count++;
 
         for (uint8_t x_line = 0; x_line < 8; x_line++) {
             uint8_t bit = (pixel & (0x80 >> x_line));
@@ -304,7 +336,7 @@ void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n) {
         }
     }
 
-    chip8->draw_flag = 1;
+    chip8->draw_flag = true;
 }
 
 void skip_if_key_presed(Chip8 *chip8);
