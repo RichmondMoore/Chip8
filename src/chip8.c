@@ -385,7 +385,7 @@ void jump_indirect(Chip8 *chip8, uint16_t nnn) {
 }
 
 void set_reg_random(Chip8 *chip8, uint8_t x) {
-    chip8->V[x] = rand() % 255;
+    chip8->V[x] &= rand() % 255;
     return;
 }
 
