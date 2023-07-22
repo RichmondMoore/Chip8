@@ -3,8 +3,9 @@
 #include "raylib.h"
 
 void raylib_init() {
-	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Chip-8 Interpretor");
+	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Chip-8 Interpreter");
 	SetWindowMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+	SetTargetFPS(60);
 
 	BeginDrawing();
 	ClearBackground(BLACK);
@@ -32,12 +33,9 @@ void draw_display(Chip8 *chip8) {
 			uint16_t y_pos = CHIP8_DISPLAY_Y_OFFSET + row * 10;
 			if (chip8->display[row][col] == 1) {
 				DrawRectangle(x_pos, y_pos, rect_width, rect_height, WHITE);
-			} else {
-				DrawRectangle(x_pos, y_pos, rect_width, rect_height, BLACK);
 			}
 		}
 	}
 	EndDrawing();
-
 	return;
 }
