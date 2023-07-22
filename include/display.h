@@ -10,14 +10,16 @@
 
 // Defines
 
-#define WINDOW_HEIGHT               (340)
-#define WINDOW_WIDTH                (680)
+#define TARGET_FPS                  (10)
 
-#define CHIP8_DISPLAY_HEIGHT        (320)
-#define CHIP8_DISPLAY_WIDTH         (640)
+#define WINDOW_HEIGHT               (960)
+#define WINDOW_WIDTH                (1920)
 
-#define CHIP8_DISPLAY_X_OFFSET      (10)
-#define CHIP8_DISPLAY_Y_OFFSET      (10)
+#define CHIP8_DISPLAY_HEIGHT        (640)
+#define CHIP8_DISPLAY_WIDTH         (1280)
+
+#define CHIP8_DISPLAY_X_OFFSET      ((WINDOW_WIDTH - CHIP8_DISPLAY_WIDTH) / 2)
+#define CHIP8_DISPLAY_Y_OFFSET      ((WINDOW_HEIGHT - CHIP8_DISPLAY_HEIGHT) / 2)
 
 // Functions
 
@@ -37,3 +39,7 @@ void close_display();
 void draw_display(Chip8 *chip8);
 
 #endif
+
+// TODO make a window struct instead of using defines
+//  this would allow more functions to control these parameters
+//  instead of hard-coding them
