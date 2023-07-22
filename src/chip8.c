@@ -29,18 +29,31 @@ void run() {
 
     init_cpu(&chip8);
     init_display(&chip8);
-    load_rom(&chip8, "ROMS/Tests/1-chip8-logo.ch8");
+    load_rom(&chip8, ROM_PATH);
     load_fontset(&chip8);
 
     while (!should_exit()) {
+        // Allows program execution to stop
+        // This will be set by a shortcut used for debugging
+        //if (chip8.halt) continue;
+
+        // Clear display buffer
+        //memset(chip8.display, 0, sizeof(chip8.display));
+
+        // Handle user input
+        set_keyboard(&chip8);
+
+        // Get next opcode
         fetch(&chip8);
+
+        // Execute instruction based on given opcode
         decode(&chip8);
 
-        if (chip8.draw_flag) {
-            draw_display(&chip8);
-        }
+        // Update the display
+        draw_display(&chip8);
     }
 
+    // Close display before exiting
     close_display();
 
     return;
@@ -52,6 +65,9 @@ void init_cpu(Chip8 *chip8) {
     chip8->SP = 0;
     chip8->DT = 0;
     chip8->ST = 0;
+
+    chip8->halt = false;
+    chip8->wait_for_keypress = false;
 
     for (int i = 0; i < 16; i++) {
         chip8->V[i] = 0;
@@ -186,17 +202,79 @@ void decode(Chip8 *chip8) {
         case 0xD000:
             draw(chip8, x, y, n);
             break;
+        case 0xE000:
+            switch (op & 0x00FF) {
+                case 0x9E:
+                    skip_if_key_pressed(chip8, x);
+                    break;
+                case 0xA1:
+                    skip_if_key_not_pressed(chip8, x);
+                    break;
+            }
+            break;
+        case 0xF000:
+            switch (op & 0x00FF) {
+                case 0x07:
+                    set_reg_to_dt(chip8, x);
+                    break;
+                case 0x0A:
+                    store_key_press(chip8, x);
+                    break;
+                case 0x15:
+                    set_dt(chip8, x);
+                    break;
+                case 0x18:
+                    set_st(chip8, x);
+                    break;
+                case 0x1E:
+                    add_reg_to_i(chip8, x);
+                    break;
+                case 0x29:
+                    load_sprite_address(chip8, x);
+                    break;
+                case 0x33:
+                    store_bcd(chip8, x);
+                    break;
+                case 0x55:
+                    store_regs(chip8, x);
+                    break;
+                case 0x65:
+                    load_regs(chip8, x);
+                    break;
+            }
+            break;
         default:
             exit(EXIT_FAILURE);
             break;
     }
 
-    chip8->PC += 2;
+    if (!chip8->wait_for_keypress) chip8->PC += 2;
+}
+
+void set_keyboard(Chip8 *chip8) {
+    if (IsKeyDown(KEY_ZERO)) chip8->keyboard[0x0] = true;
+    else if (IsKeyDown(KEY_ONE)) chip8->keyboard[0x1] = true;
+    else if (IsKeyDown(KEY_TWO)) chip8->keyboard[0x2] = true;
+    else if (IsKeyDown(KEY_THREE)) chip8->keyboard[0x3] = true;
+    else if (IsKeyDown(KEY_FOUR)) chip8->keyboard[0xC] = true;
+    else if (IsKeyDown(KEY_Q)) chip8->keyboard[0x4] = true;
+    else if (IsKeyDown(KEY_W)) chip8->keyboard[0x5] = true;
+    else if (IsKeyDown(KEY_E)) chip8->keyboard[0x6] = true;
+    else if (IsKeyDown(KEY_R)) chip8->keyboard[0xD] = true;
+    else if (IsKeyDown(KEY_A)) chip8->keyboard[0x7] = true;
+    else if (IsKeyDown(KEY_S)) chip8->keyboard[0x8] = true;
+    else if (IsKeyDown(KEY_D)) chip8->keyboard[0x9] = true;
+    else if (IsKeyDown(KEY_F)) chip8->keyboard[0xE] = true;
+    else if (IsKeyDown(KEY_Z)) chip8->keyboard[0xA] = true;
+    else if (IsKeyDown(KEY_X)) chip8->keyboard[0x0] = true;
+    else if (IsKeyDown(KEY_C)) chip8->keyboard[0xB] = true;
+    else if (IsKeyDown(KEY_V)) chip8->keyboard[0xF] = true;
+
+    return;
 }
 
 void clear_screen(Chip8 *chip8) {
     memset(chip8->display, 0, sizeof(chip8->display));
-    chip8->draw_flag = true;
     return;
 }
 
@@ -308,12 +386,12 @@ void jump_indirect(Chip8 *chip8, uint16_t nnn) {
 
 void set_reg_random(Chip8 *chip8, uint8_t x) {
     chip8->V[x] = rand() % 255;
+    return;
 }
 
 void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n) {
     // Read n bytes of memory from I, at (Vx, Vy)
     // Xor onto screen, if pixel is erased, set Vf = 1
-    // Wrap around screen
 
     // Display ref: [32][64]->[Y][X]
     chip8->V[0xF] = 0; // Preemptively set to 0
@@ -322,7 +400,7 @@ void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n) {
     uint8_t X = chip8->V[x] % 64;
     uint8_t Y = chip8->V[y] % 32;
 
-    for (uint8_t y_line = 0; y_line< n; y_line++) {
+    for (uint8_t y_line = 0; y_line < n; y_line++) {
         uint8_t pixel = chip8->mem[chip8->I + y_line];
 
         for (uint8_t x_line = 0; x_line < 8; x_line++) {
@@ -333,20 +411,88 @@ void draw(Chip8 *chip8, uint8_t x, uint8_t y, uint8_t n) {
                 }
                 chip8->display[Y + y_line][X + x_line] ^= 1;
             }
+            if (X + x_line >= 64) break;
         }
+
+        if (Y + y_line >= 32) break;
     }
 
-    chip8->draw_flag = true;
+    return;
 }
 
-void skip_if_key_presed(Chip8 *chip8);
-void skip_if_key_not_pressed(Chip8 *chip8);
-void set_reg_to_dt(Chip8 *chip8);
-void store_key_press(Chip8 *chip8);
-void set_dt(Chip8 *chip8);
-void set_st(Chip8 *chip8);
-void add_reg_to_i(Chip8 *chip8);
-void load_sprite_address(Chip8 *chip8);
-void store_bcd(Chip8 *chip8);
-void store_regs(Chip8 *chip8);
-void load_regs(Chip8 *chip8);
+void skip_if_key_pressed(Chip8 *chip8, uint8_t x) {
+    if (chip8->keyboard[x] == true) chip8->PC += 2;
+    return;
+}
+
+void skip_if_key_not_pressed(Chip8 *chip8, uint8_t x) {
+    if (chip8->keyboard[x] != true) chip8->PC += 2;
+    return;
+}
+
+void set_reg_to_dt(Chip8 *chip8, uint8_t x) {
+    chip8->V[x] = chip8->DT;
+    return;
+}
+void store_key_press(Chip8 *chip8, uint8_t x) {
+    // Stop incrementing PC
+    // Halts program until a key is pressed
+    chip8->wait_for_keypress = true;
+    for (uint8_t i = 0; i < 16; i++) {
+        // Store the first key pressed
+        if (chip8->keyboard[i] == true) {
+            chip8->V[x] = i;
+            chip8->wait_for_keypress = false; // Program can run now
+        }
+    }
+    return;
+}
+
+void set_dt(Chip8 *chip8, uint8_t x) {
+    chip8->DT = chip8->V[x];
+    return;
+}
+
+void set_st(Chip8 *chip8, uint8_t x) {
+    chip8->ST = chip8->V[x];
+}
+
+void add_reg_to_i(Chip8 *chip8, uint8_t x) {
+    chip8->I += chip8->V[x];
+    return;
+}
+
+void load_sprite_address(Chip8 *chip8, uint8_t x) {
+    chip8->I = chip8->V[x] * 0x5;
+    return;
+}
+
+void store_bcd(Chip8 *chip8, uint8_t x) {
+    uint8_t val = chip8->V[x];
+
+    chip8->mem[chip8->I + 2] = val % 10; val /= 10;
+    chip8->mem[chip8->I + 1] = val % 10; val /= 10;
+    chip8->mem[chip8->I] = val % 10;
+    return;
+}
+
+void store_regs(Chip8 *chip8, uint8_t x) {
+    for (uint8_t i = 0; i < x; i++) {
+        chip8->mem[chip8->I + i] = chip8->V[i];
+    }
+
+    return;
+}
+
+void load_regs(Chip8 *chip8, uint8_t x) {
+    for (uint8_t i = 0; i < x; i++) {
+        chip8->V[i] = chip8->mem[chip8->I + i];
+    }
+
+    return;
+}
+
+// TODO move opcodes to new files: opcodes.c/.h
+// TODO function to decrement timers
+// TODO function to play sound
+//TODO drop memset requirement
