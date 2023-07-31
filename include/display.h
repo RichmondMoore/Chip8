@@ -10,13 +10,13 @@
 
 // Defines
 
-#define TARGET_FPS                  (10)
+#define TARGET_FPS                  (60)
 
-#define WINDOW_HEIGHT               (960)
-#define WINDOW_WIDTH                (1920)
+#define WINDOW_HEIGHT               (380)
+#define WINDOW_WIDTH                (800)
 
-#define CHIP8_DISPLAY_HEIGHT        (640)
-#define CHIP8_DISPLAY_WIDTH         (1280)
+#define CHIP8_DISPLAY_HEIGHT        (320)
+#define CHIP8_DISPLAY_WIDTH         (640)
 
 #define CHIP8_DISPLAY_X_OFFSET      ((WINDOW_WIDTH - CHIP8_DISPLAY_WIDTH) / 2)
 #define CHIP8_DISPLAY_Y_OFFSET      ((WINDOW_HEIGHT - CHIP8_DISPLAY_HEIGHT) / 2)
