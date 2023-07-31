@@ -51,7 +51,7 @@ void set_keyboard(Chip8 *chip8);
 void clear_screen(Chip8 *chip8);
 void return_subroutine(Chip8 *chip8);
 void jump(Chip8 *chip8, uint16_t);
-void call_subroutine(Chip8 *chip8);
+void call_subroutine(Chip8 *chip8, uint16_t nnn);
 void skip_if_equal(Chip8 *chip8, uint8_t x, uint8_t kk);
 void skip_if_not_equal(Chip8 *chip8, uint8_t x, uint8_t kk);
 void skip_if_regs_equal(Chip8 *chip8, uint8_t x, uint8_t y);

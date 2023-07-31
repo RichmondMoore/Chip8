@@ -105,6 +105,7 @@ void load_fontset(Chip8 *chip8) {
 
 void fetch(Chip8 *chip8) {
     chip8->current_op = chip8->mem[chip8->PC] << 8 | chip8->mem[chip8->PC + 1];
+    chip8->PC += 2;
 }
 
 void decode(Chip8 *chip8) {
@@ -138,7 +139,7 @@ void decode(Chip8 *chip8) {
             return;
             break; // Unreachable
         case 0x2000:
-            call_subroutine(chip8);
+            call_subroutine(chip8, nnn);
             return;
             break; // Unreachable
         case 0x3000:
@@ -248,7 +249,7 @@ void decode(Chip8 *chip8) {
             break;
     }
 
-    if (!chip8->wait_for_keypress) chip8->PC += 2;
+    if (chip8->wait_for_keypress) chip8->PC -= 2;
 }
 
 void set_keyboard(Chip8 *chip8) {
@@ -289,8 +290,9 @@ void jump(Chip8 *chip8, uint16_t nnn) {
     return;
 }
 
-void call_subroutine(Chip8 *chip8) {
-    chip8->stack[chip8->SP++] = chip8->PC + 2;
+void call_subroutine(Chip8 *chip8, uint16_t nnn) {
+    chip8->stack[chip8->SP++] = chip8->PC;
+    chip8->PC = nnn;
     return;
 }
 
