@@ -46,6 +46,7 @@ void load_fontset(Chip8 *chip8);
 void fetch(Chip8 *chip8);
 void decode(Chip8 *chip8);
 void set_keyboard(Chip8 *chip8);
+void decrement_timers(Chip8 *chip8);
 
 // Opcodes
 void clear_screen(Chip8 *chip8);

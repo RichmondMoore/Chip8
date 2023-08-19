@@ -35,7 +35,7 @@ void run() {
     while (!should_exit()) {
         // Allows program execution to stop
         // This will be set by a shortcut used for debugging
-        //if (chip8.halt) continue;
+        if (chip8.halt) continue;
 
         // Clear display buffer
         //memset(chip8.display, 0, sizeof(chip8.display));
@@ -249,6 +249,7 @@ void decode(Chip8 *chip8) {
             break;
     }
 
+    // Prevents PC from incrementing to next instruction until key is pressed
     if (chip8->wait_for_keypress) chip8->PC -= 2;
 }
 
@@ -270,9 +271,20 @@ void set_keyboard(Chip8 *chip8) {
     else if (IsKeyDown(KEY_X)) chip8->keyboard[0x0] = true;
     else if (IsKeyDown(KEY_C)) chip8->keyboard[0xB] = true;
     else if (IsKeyDown(KEY_V)) chip8->keyboard[0xF] = true;
+    else if (IsKeyDown(KEY_SPACE)) chip8->halt = !chip8->halt; // Alternates to unhalt program
 
     return;
 }
+
+void decrement_timers(Chip8 *chip8) {
+    // Also need to check if sound should play
+    // Start playing once above 0, only start playing again if transition from not playing->playing
+    //  i.e. don't restart playing sound if it is already playing
+    if (chip8->DT > 0) chip8->DT--;
+    if (chip8->ST > 0) chip8->ST--;
+}
+
+// ********** OPCODES **********
 
 void clear_screen(Chip8 *chip8) {
     memset(chip8->display, 0, sizeof(chip8->display));
@@ -438,7 +450,7 @@ void set_reg_to_dt(Chip8 *chip8, uint8_t x) {
 }
 void store_key_press(Chip8 *chip8, uint8_t x) {
     // Stop incrementing PC
-    // Halts program until a key is pressed
+    // Prevents PC from incrementing until a key is pressed
     chip8->wait_for_keypress = true;
     for (uint8_t i = 0; i < 16; i++) {
         // Store the first key pressed
@@ -495,6 +507,5 @@ void load_regs(Chip8 *chip8, uint8_t x) {
 }
 
 // TODO move opcodes to new files: opcodes.c/.h
-// TODO function to decrement timers
 // TODO function to play sound
 //TODO drop memset requirement
