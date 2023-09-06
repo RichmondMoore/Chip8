@@ -1,6 +1,8 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
+#include "raylib.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -33,6 +35,8 @@ typedef struct {
     bool halt;
     bool wait_for_keypress;
 
+    Sound beep;
+
     uint16_t current_op;
 } Chip8;
 
@@ -41,6 +45,7 @@ typedef struct {
 void run();
 void init_cpu(Chip8 *chip8);
 void init_display(Chip8 *chip8);
+void init_sound(Chip8 *chip8);
 void load_rom(Chip8 *chip8, char *path);
 void load_fontset(Chip8 *chip8);
 void fetch(Chip8 *chip8);
@@ -49,7 +54,7 @@ void set_keyboard(Chip8 *chip8);
 void decrement_timers(Chip8 *chip8);
 
 // Opcodes
-void clear_screen(Chip8 *chip8);
+/*void clear_screen(Chip8 *chip8);
 void return_subroutine(Chip8 *chip8);
 void jump(Chip8 *chip8, uint16_t);
 void call_subroutine(Chip8 *chip8, uint16_t nnn);
@@ -83,5 +88,6 @@ void load_sprite_address(Chip8 *chip8, uint8_t x);
 void store_bcd(Chip8 *chip8, uint8_t x);
 void store_regs(Chip8 *chip8, uint8_t x);
 void load_regs(Chip8 *chip8, uint8_t x);
+*/
 
 #endif
