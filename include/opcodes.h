@@ -1,6 +1,8 @@
 #ifndef OPCODES_H
 #define OPCODES_H
 
+#include <string.h>
+
 #include "chip8.h"
 
 void clear_screen(Chip8 *chip8);
