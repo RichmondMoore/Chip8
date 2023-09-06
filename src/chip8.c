@@ -29,6 +29,7 @@ void run() {
 
     init_cpu(&chip8);
     init_display(&chip8);
+    init_sound(&chip8);
     load_rom(&chip8, ROM_PATH);
     load_fontset(&chip8);
 
@@ -82,6 +83,10 @@ void init_display(Chip8 *chip8) {
     raylib_init();
 }
 
+void init_sound(Chip8 *chip8) {
+    InitAudioDevice();
+}
+
 void load_rom(Chip8 *chip8, char *path) {
     FILE* fp;
     fp = fopen(path, "rb");
@@ -106,6 +111,14 @@ void load_fontset(Chip8 *chip8) {
 void fetch(Chip8 *chip8) {
     chip8->current_op = chip8->mem[chip8->PC] << 8 | chip8->mem[chip8->PC + 1];
     chip8->PC += 2;
+}
+
+void decrement_timers(Chip8 *chip8) {
+    if (chip8->DT > 0) chip8->DT--;
+    if (chip8->ST > 0) {
+        chip8->ST--;
+        if (chip8->ST > 0) printf("beep!\n");
+    }
 }
 
 void decode(Chip8 *chip8) {
@@ -504,8 +517,9 @@ void load_regs(Chip8 *chip8, uint8_t x) {
     }
 
     return;
-}
+}*/
 
 // TODO move opcodes to new files: opcodes.c/.h
 // TODO function to play sound
-//TODO drop memset requirement
+// TODO drop memset requirement
+// TODO 'cleanup' function: free memory, unload audio, close display
