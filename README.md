@@ -7,23 +7,10 @@ Projet is now functionally complete, although not perfect.
 
 ## Usage
 
-To build, enter `make build`
+To build, enter `make build`, then run the executable `./chip8`
 
-To run the interpreter, enter `./chip8 <Path to ROM> <Speed (Hz)>`
-Both the ROM and speed are optional, and defalt to BRIX and 540 respectively.
+Note: I am planning to update the way ROMs and speeds are set, so the Usage instructions will change.
 
-## Known Issues
+## Rewrite
 
-The timing isn't perfect, which I think is causing some minor issues with collision detection.
-
-There are minor issues with drawing to the display which may be caused by:
-    - Bugs in ROMs used
-    - Bugs with display opcode
-    - Something else I haven't thought of
-
-## Future
-
-There are still several things I may add in the future if I return to this project:
-    - Extend GUI to show the instructions being executed and the current register values
-    - Use function pointers instead of switch statements
-    - Change how GUI is handled, I think there is a better way
+This is my attempt at rewriting my Chip-8 emulator to be easier to work with, show more information, and fix underlying issues with my original implementation. This version uses Raylib rather than SDL2. Opcode execution is much more separated now, with each getting its own function rather than all of them being included in the giant switch statement.
